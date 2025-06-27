@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+
+@theme {
+  --color-yellow-metal-50: #f8f5ed;
+  --color-yellow-metal-100: #f0e9d7;
+  --color-yellow-metal-200: #e2d7b4;
+  --color-yellow-metal-300: #cfbf87;
+  --color-yellow-metal-400: #baa861;
+  --color-yellow-metal-500: #9f8d43;
+  --color-yellow-metal-600: #75692f;
+  --color-yellow-metal-700: #61592a;
+  --color-yellow-metal-800: #4e4826;
+  --color-yellow-metal-900: #433f24;
+  --color-yellow-metal-950: #24220f;
+}
