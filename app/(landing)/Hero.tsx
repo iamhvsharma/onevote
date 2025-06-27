@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import React, { useState } from "react";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 const pollQuestion =
   "Should artificial intelligence be allowed to make legal decisions in court cases?";
@@ -31,12 +32,23 @@ const Hero = () => {
             insights, and make smarter decisions in real time.
           </p>
           <div>
-            <Link
-              href="/signup"
-              className="inline-block bg-yellow-metal-500 hover:bg-yellow-metal-600 transition text-yellow-metal-50 rounded-xl px-8 py-3 text-lg md:text-xl font-bold shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-metal-400 focus:ring-offset-2"
-            >
-              Get Started
-            </Link>
+            <SignedIn>
+              <Link
+                href="/dashboard"
+                className="inline-block bg-yellow-metal-500 hover:bg-yellow-metal-600 transition text-yellow-metal-50 rounded-xl px-8 py-3 text-lg md:text-xl font-bold shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-metal-400 focus:ring-offset-2"
+              >
+                Your Polls
+              </Link>
+            </SignedIn>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button
+                  className="inline-block bg-yellow-metal-500 hover:bg-yellow-metal-600 transition text-yellow-metal-50 rounded-xl px-8 py-3 text-lg md:text-xl font-bold shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-metal-400 focus:ring-offset-2"
+                >
+                  Get Started
+                </button>
+              </SignInButton>
+            </SignedOut>
           </div>
         </div>
         {/* Right: Poll Card */}

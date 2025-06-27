@@ -2,6 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/nextjs";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -19,19 +25,22 @@ export default function Navbar() {
 
           {/* Desktop Links */}
           <div className="hidden md:flex space-x-6 items-center">
-            {/* <Link
-              href="/features"
-              className="text-gray-600 hover:text-black transition"
-            >
-              Features
-            </Link> */}
-
-            <Link
-              href="/signup"
-              className="px-4 py-2 bg-yellow-metal-500 text-yellow-metal-50 rounded-xl font-bold hover:bg-yellow-metal-600 transition"
-            >
-              Signup
-            </Link>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="px-4 py-2 bg-yellow-metal-500 text-yellow-metal-50 rounded-xl font-bold hover:bg-yellow-metal-600 transition">
+                  Signin
+                </button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <Link
+                href="/create-poll"
+                className="px-4 py-2 bg-yellow-metal-100 text-yellow-metal-900 rounded-xl font-bold hover:bg-yellow-metal-200 transition"
+              >
+                + Create Poll
+              </Link>
+              <UserButton />
+            </SignedIn>
           </div>
 
           {/* Mobile Hamburger */}
@@ -69,19 +78,24 @@ export default function Navbar() {
         {/* Mobile Menu */}
         {menuOpen && (
           <div className="md:hidden mt-2 space-y-2 pb-4 border-t pt-2">
-            {/* <Link
-              href="/features"
-              className="block text-gray-700 px-4 py-2 hover:bg-gray-100 rounded"
-            >
-              Features
-            </Link> */}
-
-            <Link
-              href="/signup"
-              className="px-4 py-2 bg-yellow-metal-500 text-yellow-metal-50 rounded-xl font-bold hover:bg-yellow-metal-600 transition"
-            >
-              Signup
-            </Link>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="w-full px-4 py-2 bg-yellow-metal-500 text-yellow-metal-50 rounded-xl font-bold hover:bg-yellow-metal-600 transition">
+                  Signin
+                </button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <Link
+                href="/create-poll"
+                className="block w-full px-4 py-2 bg-yellow-metal-100 text-yellow-metal-900 rounded-xl font-bold hover:bg-yellow-metal-200 transition"
+              >
+                + Create Poll
+              </Link>
+              <div className="flex justify-end mt-2">
+                <UserButton />
+              </div>
+            </SignedIn>
           </div>
         )}
       </div>
