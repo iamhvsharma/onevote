@@ -34,7 +34,7 @@ const Hero = () => {
           <div>
             <SignedIn>
               <Link
-                href="/dashboard"
+                href="/all-polls"
                 className="inline-block bg-yellow-metal-500 hover:bg-yellow-metal-600 transition text-yellow-metal-50 rounded-xl px-8 py-3 text-lg md:text-xl font-bold shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-metal-400 focus:ring-offset-2"
               >
                 Your Polls
