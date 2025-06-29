@@ -1,34 +1,37 @@
-"use client"
+"use client";
 
-import { Plus, X, FileText, MessageSquare } from "lucide-react"
-import type { PollData } from "@/app/poll/create/page"
+import { Plus, X, FileText, MessageSquare } from "lucide-react";
+import type { PollData } from "@/app/(dashboard)/new-poll/page";
 
 interface PollDetailsProps {
-  pollData: PollData
-  updatePollData: (data: Partial<PollData>) => void
+  pollData: PollData;
+  updatePollData: (data: Partial<PollData>) => void;
 }
 
-export default function PollDetails({ pollData, updatePollData }: PollDetailsProps) {
+export default function PollDetails({
+  pollData,
+  updatePollData,
+}: PollDetailsProps) {
   const addOption = () => {
     if (pollData.options.length < 6) {
       updatePollData({
         options: [...pollData.options, ""],
-      })
+      });
     }
-  }
+  };
 
   const removeOption = (index: number) => {
     if (pollData.options.length > 2) {
-      const newOptions = pollData.options.filter((_, i) => i !== index)
-      updatePollData({ options: newOptions })
+      const newOptions = pollData.options.filter((_, i) => i !== index);
+      updatePollData({ options: newOptions });
     }
-  }
+  };
 
   const updateOption = (index: number, value: string) => {
-    const newOptions = [...pollData.options]
-    newOptions[index] = value
-    updatePollData({ options: newOptions })
-  }
+    const newOptions = [...pollData.options];
+    newOptions[index] = value;
+    updatePollData({ options: newOptions });
+  };
 
   return (
     <div className="space-y-8">
@@ -37,9 +40,13 @@ export default function PollDetails({ pollData, updatePollData }: PollDetailsPro
           <div className="p-3 bg-gradient-to-br from-yellow-metal-400 to-yellow-metal-500 rounded-2xl shadow-lg">
             <FileText className="w-6 h-6 text-yellow-metal-50" />
           </div>
-          <h2 className="text-2xl font-bold text-yellow-metal-900">Poll Details</h2>
+          <h2 className="text-2xl font-bold text-yellow-metal-900">
+            Poll Details
+          </h2>
         </div>
-        <p className="text-yellow-metal-700">Enter the basic information for your poll</p>
+        <p className="text-yellow-metal-700">
+          Enter the basic information for your poll
+        </p>
       </div>
 
       <div className="grid gap-6">
@@ -57,7 +64,9 @@ export default function PollDetails({ pollData, updatePollData }: PollDetailsPro
             className="w-full p-4 bg-white border-2 border-yellow-metal-200 rounded-xl focus:border-yellow-metal-400 focus:outline-none transition-colors text-yellow-metal-900 placeholder-yellow-metal-500"
             maxLength={100}
           />
-          <div className="text-right text-xs text-yellow-metal-600">{pollData.title.length}/100</div>
+          <div className="text-right text-xs text-yellow-metal-600">
+            {pollData.title.length}/100
+          </div>
         </div>
 
         {/* Poll Description */}
@@ -74,13 +83,17 @@ export default function PollDetails({ pollData, updatePollData }: PollDetailsPro
             className="w-full p-4 bg-white border-2 border-yellow-metal-200 rounded-xl focus:border-yellow-metal-400 focus:outline-none transition-colors text-yellow-metal-900 placeholder-yellow-metal-500 resize-none"
             maxLength={250}
           />
-          <div className="text-right text-xs text-yellow-metal-600">{pollData.description.length}/250</div>
+          <div className="text-right text-xs text-yellow-metal-600">
+            {pollData.description.length}/250
+          </div>
         </div>
 
         {/* Poll Options */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-semibold text-yellow-metal-800">Poll Options</label>
+            <label className="text-sm font-semibold text-yellow-metal-800">
+              Poll Options
+            </label>
             <button
               onClick={addOption}
               disabled={pollData.options.length >= 6}
@@ -124,19 +137,27 @@ export default function PollDetails({ pollData, updatePollData }: PollDetailsPro
 
         {/* Poll Settings */}
         <div className="space-y-4 pt-4 border-t border-yellow-metal-200">
-          <h3 className="text-sm font-semibold text-yellow-metal-800">Poll Settings</h3>
+          <h3 className="text-sm font-semibold text-yellow-metal-800">
+            Poll Settings
+          </h3>
 
           <div className="space-y-3">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
                 checked={pollData.allowMultipleVotes}
-                onChange={(e) => updatePollData({ allowMultipleVotes: e.target.checked })}
+                onChange={(e) =>
+                  updatePollData({ allowMultipleVotes: e.target.checked })
+                }
                 className="w-5 h-5 text-yellow-metal-500 bg-white border-2 border-yellow-metal-300 rounded focus:ring-yellow-metal-400 focus:ring-2"
               />
               <div>
-                <span className="text-sm font-medium text-yellow-metal-800">Allow multiple votes</span>
-                <p className="text-xs text-yellow-metal-600">Users can select multiple options</p>
+                <span className="text-sm font-medium text-yellow-metal-800">
+                  Allow multiple votes
+                </span>
+                <p className="text-xs text-yellow-metal-600">
+                  Users can select multiple options
+                </p>
               </div>
             </label>
 
@@ -144,17 +165,23 @@ export default function PollDetails({ pollData, updatePollData }: PollDetailsPro
               <input
                 type="checkbox"
                 checked={pollData.requireAuth}
-                onChange={(e) => updatePollData({ requireAuth: e.target.checked })}
+                onChange={(e) =>
+                  updatePollData({ requireAuth: e.target.checked })
+                }
                 className="w-5 h-5 text-yellow-metal-500 bg-white border-2 border-yellow-metal-300 rounded focus:ring-yellow-metal-400 focus:ring-2"
               />
               <div>
-                <span className="text-sm font-medium text-yellow-metal-800">Require authentication</span>
-                <p className="text-xs text-yellow-metal-600">Only logged-in users can vote</p>
+                <span className="text-sm font-medium text-yellow-metal-800">
+                  Require authentication
+                </span>
+                <p className="text-xs text-yellow-metal-600">
+                  Only logged-in users can vote
+                </p>
               </div>
             </label>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

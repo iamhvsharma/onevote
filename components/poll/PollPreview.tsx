@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import { Eye, Share2, Settings, TrendingUp, Users, Clock } from "lucide-react"
-import type { PollData } from "@/app/poll/create/page" 
+import { Eye, Share2, Settings, TrendingUp, Users, Clock } from "lucide-react";
+import type { PollData } from "@/app/(dashboard)/new-poll/page";
 
 interface PollPreviewProps {
-  pollData: PollData
+  pollData: PollData;
 }
 
 export default function PollPreview({ pollData }: PollPreviewProps) {
   // Mock votes for preview
-  const mockVotes = pollData.options.map(() => Math.floor(Math.random() * 50))
-  const totalVotes = mockVotes.reduce((a, b) => a + b, 0)
+  const mockVotes = pollData.options.map(() => Math.floor(Math.random() * 50));
+  const totalVotes = mockVotes.reduce((a, b) => a + b, 0);
 
   return (
     <div className="space-y-8">
@@ -19,9 +19,13 @@ export default function PollPreview({ pollData }: PollPreviewProps) {
           <div className="p-3 bg-gradient-to-br from-yellow-metal-400 to-yellow-metal-500 rounded-2xl shadow-lg">
             <Eye className="w-6 h-6 text-yellow-metal-50" />
           </div>
-          <h2 className="text-2xl font-bold text-yellow-metal-900">Preview Your Poll</h2>
+          <h2 className="text-2xl font-bold text-yellow-metal-900">
+            Preview Your Poll
+          </h2>
         </div>
-        <p className="text-yellow-metal-700">This is how your poll will appear to voters</p>
+        <p className="text-yellow-metal-700">
+          This is how your poll will appear to voters
+        </p>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8">
@@ -45,7 +49,9 @@ export default function PollPreview({ pollData }: PollPreviewProps) {
                   <TrendingUp className="w-4 h-4 text-yellow-metal-50" />
                 </div>
                 <div className="bg-yellow-metal-200/50 px-2 py-0.5 rounded-full">
-                  <span className="text-xs font-semibold text-yellow-metal-700 uppercase tracking-wide">LIVE</span>
+                  <span className="text-xs font-semibold text-yellow-metal-700 uppercase tracking-wide">
+                    LIVE
+                  </span>
                 </div>
               </div>
 
@@ -62,9 +68,13 @@ export default function PollPreview({ pollData }: PollPreviewProps) {
               {pollData.options
                 .filter((opt) => opt.trim())
                 .map((option, index) => {
-                  const voteCount = mockVotes[index] || 0
-                  const percent = totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0
-                  const isLeading = voteCount === Math.max(...mockVotes) && voteCount > 0
+                  const voteCount = mockVotes[index] || 0;
+                  const percent =
+                    totalVotes > 0
+                      ? Math.round((voteCount / totalVotes) * 100)
+                      : 0;
+                  const isLeading =
+                    voteCount === Math.max(...mockVotes) && voteCount > 0;
 
                   return (
                     <div key={index} className="group">
@@ -73,7 +83,9 @@ export default function PollPreview({ pollData }: PollPreviewProps) {
                           {isLeading && (
                             <div className="w-1.5 h-1.5 bg-yellow-metal-500 rounded-full animate-pulse flex-shrink-0"></div>
                           )}
-                          <span className="font-medium text-yellow-metal-900 text-sm truncate">{option}</span>
+                          <span className="font-medium text-yellow-metal-900 text-sm truncate">
+                            {option}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
                           <span className="text-xs text-yellow-metal-600 bg-yellow-metal-100 px-1.5 py-0.5 rounded">
@@ -103,7 +115,7 @@ export default function PollPreview({ pollData }: PollPreviewProps) {
                         )}
                       </div>
                     </div>
-                  )
+                  );
                 })}
             </div>
 
@@ -116,7 +128,9 @@ export default function PollPreview({ pollData }: PollPreviewProps) {
                   </div>
                   <div>
                     <p className="text-xs text-yellow-metal-600">Total</p>
-                    <p className="text-sm font-bold text-yellow-metal-900">{totalVotes}</p>
+                    <p className="text-sm font-bold text-yellow-metal-900">
+                      {totalVotes}
+                    </p>
                   </div>
                 </div>
 
@@ -147,11 +161,15 @@ export default function PollPreview({ pollData }: PollPreviewProps) {
           <div className="space-y-4">
             {/* Basic Info */}
             <div className="bg-white border-2 border-yellow-metal-200 rounded-xl p-4">
-              <h4 className="font-semibold text-yellow-metal-900 mb-3">Basic Information</h4>
+              <h4 className="font-semibold text-yellow-metal-900 mb-3">
+                Basic Information
+              </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-yellow-metal-600">Title:</span>
-                  <span className="text-yellow-metal-900 font-medium">{pollData.title || "Not set"}</span>
+                  <span className="text-yellow-metal-900 font-medium">
+                    {pollData.title || "Not set"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-yellow-metal-600">Options:</span>
@@ -164,7 +182,9 @@ export default function PollPreview({ pollData }: PollPreviewProps) {
 
             {/* Duration */}
             <div className="bg-white border-2 border-yellow-metal-200 rounded-xl p-4">
-              <h4 className="font-semibold text-yellow-metal-900 mb-3">Duration</h4>
+              <h4 className="font-semibold text-yellow-metal-900 mb-3">
+                Duration
+              </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-yellow-metal-600">Duration:</span>
@@ -177,17 +197,29 @@ export default function PollPreview({ pollData }: PollPreviewProps) {
 
             {/* Settings */}
             <div className="bg-white border-2 border-yellow-metal-200 rounded-xl p-4">
-              <h4 className="font-semibold text-yellow-metal-900 mb-3">Settings</h4>
+              <h4 className="font-semibold text-yellow-metal-900 mb-3">
+                Settings
+              </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-yellow-metal-600">Multiple votes:</span>
-                  <span className={`font-medium ${pollData.allowMultipleVotes ? "text-green-600" : "text-red-600"}`}>
+                  <span
+                    className={`font-medium ${
+                      pollData.allowMultipleVotes
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
                     {pollData.allowMultipleVotes ? "Allowed" : "Not allowed"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-yellow-metal-600">Authentication:</span>
-                  <span className={`font-medium ${pollData.requireAuth ? "text-green-600" : "text-red-600"}`}>
+                  <span
+                    className={`font-medium ${
+                      pollData.requireAuth ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
                     {pollData.requireAuth ? "Required" : "Not required"}
                   </span>
                 </div>
@@ -201,12 +233,13 @@ export default function PollPreview({ pollData }: PollPreviewProps) {
                 Ready to Share
               </h4>
               <p className="text-sm text-yellow-metal-700">
-                Once created, you'll get a shareable link that you can send to participants.
+                Once created, you'll get a shareable link that you can send to
+                participants.
               </p>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

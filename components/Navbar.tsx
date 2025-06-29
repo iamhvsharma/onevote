@@ -34,7 +34,7 @@ export default function Navbar() {
             </SignedOut>
             <SignedIn>
               <Link
-                href="/create-poll"
+                href="/new-poll"
                 className="px-4 py-2 bg-yellow-metal-100 text-yellow-metal-900 rounded-xl font-bold hover:bg-yellow-metal-200 transition"
               >
                 + Create Poll
@@ -87,7 +87,7 @@ export default function Navbar() {
             </SignedOut>
             <SignedIn>
               <Link
-                href="/create-poll"
+                href="/new-poll"
                 className="block w-full px-4 py-2 bg-yellow-metal-100 text-yellow-metal-900 rounded-xl font-bold hover:bg-yellow-metal-200 transition"
               >
                 + Create Poll
