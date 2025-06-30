@@ -1,30 +1,51 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import AudiencePollCard from "@/components/audience/AudiencePollCard"
-import { PollData } from "@/types"
+import { useState, useEffect } from "react";
+import AudiencePollCard from "@/components/audience/AudiencePollCard";
+import { PollData } from "@/types";
 
-export default function PollVotePage({ params }: { params: { id: string } }) {
-  const [pollData, setPollData] = useState<PollData | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+export default function PollVotePage({ id }: { id?: string }) {
+  const [pollData, setPollData] = useState<PollData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!id) return;
     const fetchPoll = async () => {
-      setIsLoading(true)
-      const response = await fetch(`/api/polls/${params.id}`)
-      const data = await response.json()
+      setIsLoading(true);
+      const response = await fetch(`/api/poll/${id}`);
+      const data = await response.json();
+
+      if (data.error) {
+        setPollData(null);
+        setIsLoading(false);
+        return;
+      }
 
       // Convert expiresAt to Date if it's a string
       if (data.expiresAt && typeof data.expiresAt === "string") {
-        data.expiresAt = new Date(data.expiresAt)
+        data.expiresAt = new Date(data.expiresAt);
       }
+      // Ensure options and votes are always arrays
+      if (!Array.isArray(data.options)) data.options = [];
+      if (!Array.isArray(data.votes))
+        data.votes = new Array(data.options.length).fill(0);
+      if (typeof data.totalVotes !== "number") data.totalVotes = 0;
+      if (!data.status) data.status = "LIVE";
 
-      setPollData(data)
-      setIsLoading(false)
-    }
+      setPollData(data);
+      setIsLoading(false);
+    };
 
-    fetchPoll()
-  }, [params.id])
+    fetchPoll();
+  }, [id]);
+
+  if (!id) {
+    return (
+      <div className="text-red-600 text-center mt-10">
+        Invalid poll link: Poll ID is missing.
+      </div>
+    );
+  }
 
   if (isLoading || !pollData) {
     return (
@@ -44,13 +65,16 @@ export default function PollVotePage({ params }: { params: { id: string } }) {
             </div>
             <div className="space-y-4">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-16 bg-yellow-metal-200 rounded-2xl"></div>
+                <div
+                  key={i}
+                  className="h-16 bg-yellow-metal-200 rounded-2xl"
+                ></div>
               ))}
             </div>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -59,25 +83,25 @@ export default function PollVotePage({ params }: { params: { id: string } }) {
         <AudiencePollCard
           pollData={pollData}
           onVote={(selectedOptions) => {
-            console.log("Vote submitted:", selectedOptions)
+            console.log("Vote submitted:", selectedOptions);
             // Simulate updating the vote counts
-            const newVotes = [...pollData.votes]
+            const newVotes = [...(pollData.votes ?? [])];
             selectedOptions.forEach((optionIndex) => {
-              newVotes[optionIndex] = (newVotes[optionIndex] || 0) + 1
-            })
+              newVotes[optionIndex] = (newVotes[optionIndex] || 0) + 1;
+            });
 
             setPollData((prev) =>
               prev
                 ? {
                     ...prev,
                     votes: newVotes,
-                    totalVotes: prev.totalVotes + 1,
+                    totalVotes: (prev.totalVotes ?? 0) + 1,
                   }
                 : null
-            )
+            );
           }}
         />
       </div>
     </div>
-  )
+  );
 }
