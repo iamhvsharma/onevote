@@ -3,6 +3,7 @@
 import PollCard from "@/components/dashboard/PollCard";
 import { Search } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { Toaster, toast } from "sonner";
 
 interface Poll {
   id: string;
@@ -12,6 +13,7 @@ interface Poll {
   options: string[];
   votes: number[];
   expiresAt: string; // ISO string from API
+  duration: number; // in hours
 }
 
 const Dashboard = () => {
@@ -43,8 +45,60 @@ const Dashboard = () => {
     poll.title.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Add handlers for delete and reset
+  const handleDelete = (id: string) => {
+    setPolls((prev) => prev.filter((poll) => poll.id !== id));
+  };
+  const handleReset = async (id: string) => {
+    // Refetch the poll and update in state
+    try {
+      const res = await fetch(`/api/polls/${id}`);
+      if (res.ok) {
+        const updated = await res.json();
+        setPolls((prev) =>
+          prev.map((poll) => (poll.id === id ? updated : poll))
+        );
+      } else {
+        // fallback: set all votes to 0, totalVotes to 0, status to LIVE, recalc expiresAt
+        setPolls((prev) =>
+          prev.map((poll) =>
+            poll.id === id
+              ? {
+                  ...poll,
+                  votes: poll.options.map(() => 0),
+                  totalVotes: 0,
+                  status: "LIVE",
+                  expiresAt: new Date(
+                    Date.now() + (poll.duration || 1) * 60 * 60 * 1000
+                  ).toISOString(),
+                }
+              : poll
+          )
+        );
+      }
+    } catch {
+      // fallback: set all votes to 0, totalVotes to 0, status to LIVE, recalc expiresAt
+      setPolls((prev) =>
+        prev.map((poll) =>
+          poll.id === id
+            ? {
+                ...poll,
+                votes: poll.options.map(() => 0),
+                totalVotes: 0,
+                status: "LIVE",
+                expiresAt: new Date(
+                  Date.now() + (poll.duration || 1) * 60 * 60 * 1000
+                ).toISOString(),
+              }
+            : poll
+        )
+      );
+    }
+  };
+
   return (
     <div className="bg-white text-yellow-metal-900 min-h-screen">
+      <Toaster position="bottom-right" theme="dark" richColors />
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 lg:pt-12 pb-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6">
           {/* Heading */}
@@ -83,12 +137,15 @@ const Dashboard = () => {
           filteredPolls.map((poll) => (
             <PollCard
               key={poll.id}
+              id={poll.id}
               title={poll.title}
               description={poll.description}
               options={poll.options}
               votes={poll.votes}
               status={poll.status}
               expiresAt={poll.expiresAt}
+              onDelete={handleDelete}
+              onReset={handleReset}
             />
           ))
         )}

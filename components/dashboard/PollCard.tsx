@@ -9,14 +9,19 @@ import {
   Users,
   Clock,
 } from "lucide-react";
+import { toast } from "sonner";
+import React, { useState } from "react";
 
 interface PollCardProps {
+  id: string;
   title: string;
   description: string;
   status?: "LIVE" | "CLOSED";
   options: string[];
   votes: number[];
   expiresAt: string; // ISO string
+  onDelete?: (id: string) => void;
+  onReset?: (id: string) => void;
 }
 
 const getTimeLeft = (expiresAt: string) => {
@@ -32,15 +37,60 @@ const getTimeLeft = (expiresAt: string) => {
 };
 
 const PollCard: React.FC<PollCardProps> = ({
+  id,
   title,
   description,
   status,
   options,
   votes,
   expiresAt,
+  onDelete,
+  onReset,
 }) => {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
   const totalVotes = votes.reduce((a, b) => a + b, 0);
   const timeLeft = getTimeLeft(expiresAt);
+  const pollUrl = `${window.location.origin}/poll/${id}`;
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(pollUrl);
+    toast.success("Poll URL copied!");
+  };
+
+  const handlePreview = () => {
+    window.open(pollUrl, "_blank");
+  };
+
+  const handleDelete = async () => {
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    setShowDeleteModal(false);
+    const res = await fetch(`/api/polls/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      toast.success("Poll deleted");
+      onDelete && onDelete(id);
+    } else {
+      toast.error("Failed to delete poll");
+    }
+  };
+
+  const handleReset = async () => {
+    setShowResetModal(true);
+  };
+
+  const confirmReset = async () => {
+    setShowResetModal(false);
+    const res = await fetch(`/api/polls/${id}/reset`, { method: "POST" });
+    if (res.ok) {
+      toast.success("Poll reset");
+      onReset && onReset(id);
+    } else {
+      toast.error("Failed to reset poll");
+    }
+  };
 
   return (
     <div className="bg-gradient-to-br from-yellow-metal-50 to-yellow-metal-100 border-2 border-yellow-metal-200 rounded-2xl shadow-xl hover:shadow-yellow-metal-200/50 transition-all duration-300 p-5 w-full max-w-sm h-fit min-h-[420px] flex flex-col relative overflow-hidden">
@@ -152,28 +202,92 @@ const PollCard: React.FC<PollCardProps> = ({
 
       {/* Action Buttons - always at bottom */}
       <div className="flex items-center gap-2 relative z-10 mt-auto">
-        <button className="flex-1 flex items-center justify-center gap-1.5 p-2.5 bg-yellow-metal-200 hover:bg-yellow-metal-300 rounded-xl transition-all duration-200 group shadow-md hover:shadow-lg">
+        <button
+          onClick={handleCopy}
+          className="flex-1 flex items-center justify-center gap-1.5 p-2.5 bg-yellow-metal-200 hover:bg-yellow-metal-300 rounded-xl transition-all duration-200 group shadow-md hover:shadow-lg"
+        >
           <Copy className="w-3.5 h-3.5 text-yellow-metal-700 group-hover:text-yellow-metal-800" />
           <span className="text-xs font-medium text-yellow-metal-800">
             Copy
           </span>
         </button>
 
-        <button className="flex-1 flex items-center justify-center gap-1.5 p-2.5 bg-yellow-metal-400 hover:bg-yellow-metal-500 rounded-xl transition-all duration-200 group shadow-md hover:shadow-lg">
+        <button
+          onClick={handlePreview}
+          className="flex-1 flex items-center justify-center gap-1.5 p-2.5 bg-yellow-metal-400 hover:bg-yellow-metal-500 rounded-xl transition-all duration-200 group shadow-md hover:shadow-lg"
+        >
           <ExternalLink className="w-3.5 h-3.5 text-yellow-metal-50 group-hover:text-white" />
           <span className="text-xs font-medium text-yellow-metal-50">
-            Share
+            Preview
           </span>
         </button>
 
-        <button className="p-2.5 bg-red-100 hover:bg-red-200 rounded-xl transition-all duration-200 group shadow-md hover:shadow-lg">
+        <button
+          onClick={handleDelete}
+          className="p-2.5 bg-red-100 hover:bg-red-200 rounded-xl transition-all duration-200 group shadow-md hover:shadow-lg"
+        >
           <Trash2 className="w-3.5 h-3.5 text-red-600 group-hover:text-red-700" />
         </button>
 
-        <button className="px-4 py-2.5 bg-gradient-to-r from-yellow-metal-800 to-yellow-metal-900 hover:from-yellow-metal-700 hover:to-yellow-metal-800 text-yellow-metal-50 rounded-xl text-xs font-semibold transition-all duration-200 shadow-md hover:shadow-lg">
+        <button
+          onClick={handleReset}
+          className="px-4 py-2.5 bg-gradient-to-r from-yellow-metal-800 to-yellow-metal-900 hover:from-yellow-metal-700 hover:to-yellow-metal-800 text-yellow-metal-50 rounded-xl text-xs font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
+        >
           Reset
         </button>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm mx-2 flex flex-col">
+            <div className="font-bold text-lg mb-2">Delete Poll</div>
+            <div className="mb-4 text-gray-700">
+              Are you sure you want to delete this poll?
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button
+                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+                onClick={confirmDelete}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reset Confirmation Modal */}
+      {showResetModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm mx-2 flex flex-col">
+            <div className="font-bold text-lg mb-2">Reset Poll</div>
+            <div className="mb-4 text-gray-700">
+              Are you sure you want to reset this poll?
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button
+                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+                onClick={() => setShowResetModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-yellow-metal-800 text-white hover:bg-yellow-metal-900"
+                onClick={confirmReset}
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

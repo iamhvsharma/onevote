@@ -8,6 +8,7 @@ import PollPreview from "@/components/poll/PollPreview";
 import { PollData } from "@/types";
 import { createPoll } from "@/lib/createPoll";
 import { useRouter } from "next/navigation";
+import { Toaster, toast } from "sonner";
 
 const steps = [
   {
@@ -70,6 +71,7 @@ export default function CreatePollPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-metal-50 via-yellow-metal-100 to-yellow-metal-200">
+      <Toaster position="bottom-right" theme="dark" richColors />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
@@ -187,10 +189,10 @@ export default function CreatePollPage() {
                       now.getTime() + pollData.duration * 60 * 60 * 1000
                     ).toISOString();
                     const result = await createPoll({ ...pollData, expiresAt });
-                    alert("Poll created successfully!");
+                    toast.success("Poll created successfully!");
                     router.push(`/all-polls`);
-                  } catch (err: any) {  
-                    alert(err.message);
+                  } catch (err: any) {
+                    toast.error(err.message || "Failed to create poll");
                   } finally {
                     setIsSubmitting(false);
                   }
