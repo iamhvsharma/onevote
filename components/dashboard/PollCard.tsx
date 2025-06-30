@@ -1,6 +1,6 @@
 "use client";
 
-import type React from "react";
+import  React, { useState } from "react";
 import {
   Copy,
   ExternalLink,
@@ -10,7 +10,6 @@ import {
   Clock,
 } from "lucide-react";
 import { toast } from "sonner";
-import React, { useState } from "react";
 
 interface PollCardProps {
   id: string;
