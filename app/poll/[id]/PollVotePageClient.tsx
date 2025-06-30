@@ -2,46 +2,31 @@
 
 import { useState, useEffect } from "react"
 import AudiencePollCard from "@/components/audience/AudiencePollCard"
-
-// Mock data - replace with actual API call later
-const mockPollData = {
-  id: "890",
-  title: "What's the best programming language for web development in 2024?",
-  description:
-    "Help us understand what the developer community prefers for building modern web applications. Your vote will help shape our upcoming tutorial series.",
-  options: ["JavaScript", "TypeScript", "Python", "Go"],
-  votes: [245, 189, 156, 89, 67], // Current vote counts
-  totalVotes: 746,
-  status: "LIVE" as const, // "LIVE" | "CLOSED"
-  createdAt: new Date("2024-01-15T10:00:00Z"),
-  expiresAt: new Date("2026-01-22T10:00:00Z"), // 7 days from creation
-  allowMultipleVotes: false,
-  requireAuth: false,
-}
+import { PollData } from "@/types"
 
 export default function PollVotePage({ params }: { params: { id: string } }) {
-  const [pollData, setPollData] = useState(mockPollData)
+  const [pollData, setPollData] = useState<PollData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Simulate API call
     const fetchPoll = async () => {
       setIsLoading(true)
-      // Replace with actual API call
-      // const response = await fetch(`/api/polls/${params.id}`)
-      // const data = await response.json()
+      const response = await fetch(`/api/polls/${params.id}`)
+      const data = await response.json()
 
-      // Simulate loading delay
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Convert expiresAt to Date if it's a string
+      if (data.expiresAt && typeof data.expiresAt === "string") {
+        data.expiresAt = new Date(data.expiresAt)
+      }
 
-      setPollData(mockPollData)
+      setPollData(data)
       setIsLoading(false)
     }
 
     fetchPoll()
   }, [params.id])
 
-  if (isLoading) {
+  if (isLoading || !pollData) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-metal-50 via-yellow-metal-100 to-yellow-metal-200 flex items-center justify-center">
         <div className="bg-gradient-to-br from-yellow-metal-50 to-yellow-metal-100 border-2 border-yellow-metal-200 rounded-3xl shadow-2xl p-8 max-w-2xl w-full mx-4">
@@ -75,22 +60,21 @@ export default function PollVotePage({ params }: { params: { id: string } }) {
           pollData={pollData}
           onVote={(selectedOptions) => {
             console.log("Vote submitted:", selectedOptions)
-            // Here you would typically:
-            // 1. Send the vote to your API
-            // 2. Update the poll data with new vote counts
-            // 3. Handle any errors
-
-            // For now, simulate updating the vote counts
+            // Simulate updating the vote counts
             const newVotes = [...pollData.votes]
             selectedOptions.forEach((optionIndex) => {
               newVotes[optionIndex] = (newVotes[optionIndex] || 0) + 1
             })
 
-            setPollData((prev) => ({
-              ...prev,
-              votes: newVotes,
-              totalVotes: prev.totalVotes + 1,
-            }))
+            setPollData((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    votes: newVotes,
+                    totalVotes: prev.totalVotes + 1,
+                  }
+                : null
+            )
           }}
         />
       </div>

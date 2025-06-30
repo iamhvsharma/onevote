@@ -1,7 +1,7 @@
 "use client";
 
 import { Clock, Calendar, Timer } from "lucide-react";
-import type { PollData } from "@/app/(dashboard)/new-poll/page";
+import { PollData } from "@/types";
 
 interface PollDurationProps {
   pollData: PollData;
@@ -9,12 +9,9 @@ interface PollDurationProps {
 }
 
 const durationPresets = [
-  { value: 1, unit: "hours" as const, label: "1 Hour", icon: Timer },
-  { value: 6, unit: "hours" as const, label: "6 Hours", icon: Timer },
-  { value: 12, unit: "hours" as const, label: "12 Hours", icon: Timer },
-  { value: 1, unit: "days" as const, label: "1 Day", icon: Calendar },
-  { value: 3, unit: "days" as const, label: "3 Days", icon: Calendar },
-  { value: 1, unit: "weeks" as const, label: "1 Week", icon: Calendar },
+  { value: 1, label: "1 Hour", icon: Timer },
+  { value: 6, label: "6 Hours", icon: Timer },
+  { value: 12, label: "12 Hours", icon: Timer },
 ];
 
 export default function PollDuration({
@@ -22,25 +19,11 @@ export default function PollDuration({
   updatePollData,
 }: PollDurationProps) {
   const selectPreset = (preset: (typeof durationPresets)[0]) => {
-    updatePollData({
-      duration: { value: preset.value, unit: preset.unit },
-    });
+    updatePollData({ duration: preset.value });
   };
 
   const isSelected = (preset: (typeof durationPresets)[0]) => {
-    return (
-      pollData.duration.value === preset.value &&
-      pollData.duration.unit === preset.unit
-    );
-  };
-
-  const updateDuration = (field: "value" | "unit", value: number | string) => {
-    updatePollData({
-      duration: {
-        ...pollData.duration,
-        [field]: value,
-      },
-    });
+    return pollData.duration === preset.value;
   };
 
   return (
@@ -110,39 +93,25 @@ export default function PollDuration({
             Custom Duration
           </h3>
           <div className="bg-white border-2 border-yellow-metal-200 rounded-xl p-6">
-            <div className="flex items-center gap-4">
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-yellow-metal-700 mb-2">
-                  Duration Value
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="52"
-                  value={pollData.duration.value}
-                  onChange={(e) =>
-                    updateDuration(
-                      "value",
-                      Number.parseInt(e.target.value) || 1
-                    )
-                  }
-                  className="w-full p-3 border-2 border-yellow-metal-200 rounded-lg focus:border-yellow-metal-400 focus:outline-none transition-colors text-yellow-metal-900"
-                />
-              </div>
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-yellow-metal-700 mb-2">
-                  Time Unit
-                </label>
-                <select
-                  value={pollData.duration.unit}
-                  onChange={(e) => updateDuration("unit", e.target.value)}
-                  className="w-full p-3 border-2 border-yellow-metal-200 rounded-lg focus:border-yellow-metal-400 focus:outline-none transition-colors text-yellow-metal-900 bg-white"
-                >
-                  <option value="hours">Hours</option>
-                  <option value="days">Days</option>
-                  <option value="weeks">Weeks</option>
-                </select>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-yellow-metal-700 mb-2">
+                Duration (in hours)
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="24"
+                value={pollData.duration}
+                onChange={(e) =>
+                  updatePollData({
+                    duration: Math.min(
+                      24,
+                      Math.max(1, parseInt(e.target.value || "1"))
+                    ),
+                  })
+                }
+                className="w-full p-3 border-2 border-yellow-metal-200 rounded-lg focus:border-yellow-metal-400 focus:outline-none transition-colors text-yellow-metal-900"
+              />
             </div>
           </div>
         </div>
@@ -159,50 +128,10 @@ export default function PollDuration({
               </h4>
               <p className="text-yellow-metal-700">
                 Your poll will run for{" "}
-                <span className="font-bold">
-                  {pollData.duration.value} {pollData.duration.unit}
-                </span>{" "}
-                and will automatically close after that time.
+                <span className="font-bold">{pollData.duration} hours</span> and
+                will automatically close after that time.
               </p>
             </div>
-          </div>
-        </div>
-
-        {/* Additional Settings */}
-        <div className="space-y-4 pt-4 border-t border-yellow-metal-200">
-          <h3 className="text-lg font-semibold text-yellow-metal-800">
-            Additional Settings
-          </h3>
-          <div className="space-y-3">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                className="w-5 h-5 text-yellow-metal-500 bg-white border-2 border-yellow-metal-300 rounded focus:ring-yellow-metal-400 focus:ring-2"
-              />
-              <div>
-                <span className="text-sm font-medium text-yellow-metal-800">
-                  Send reminder notifications
-                </span>
-                <p className="text-xs text-yellow-metal-600">
-                  Notify participants before the poll closes
-                </p>
-              </div>
-            </label>
-
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                className="w-5 h-5 text-yellow-metal-500 bg-white border-2 border-yellow-metal-300 rounded focus:ring-yellow-metal-400 focus:ring-2"
-              />
-              <div>
-                <span className="text-sm font-medium text-yellow-metal-800">
-                  Auto-archive after closing
-                </span>
-                <p className="text-xs text-yellow-metal-600">
-                  Automatically move to archived polls
-                </p>
-              </div>
-            </label>
           </div>
         </div>
       </div>

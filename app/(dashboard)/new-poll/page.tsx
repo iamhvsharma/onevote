@@ -1,55 +1,53 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ArrowLeft, ArrowRight, Check } from "lucide-react"
-import PollDetails from "@/components/poll/PollDetails"
-import PollDuration from "@/components/poll/PollDuration"
-import PollPreview from "@/components/poll/PollPreview"
-
-export interface PollData {
-  title: string
-  description: string
-  options: string[]
-  duration: {
-    value: number
-    unit: "hours" | "days" | "weeks"
-  }
-  allowMultipleVotes: boolean
-  requireAuth: boolean
-}
+import { useState } from "react";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import PollDetails from "@/components/poll/PollDetails";
+import PollDuration from "@/components/poll/PollDuration";
+import PollPreview from "@/components/poll/PollPreview";
+import { PollData } from "@/types";
 
 const steps = [
-  { id: 1, name: "Poll Details", description: "Basic information about your poll" },
+  {
+    id: 1,
+    name: "Poll Details",
+    description: "Basic information about your poll",
+  },
   { id: 2, name: "Duration", description: "Set how long your poll will run" },
   { id: 3, name: "Preview", description: "Review and publish your poll" },
-]
+];
+
+// Provide a default pollData object to avoid null errors
+const defaultPollData: PollData = {
+  title: "",
+  description: "",
+  options: ["", ""],
+  votes: [],
+  totalVotes: 0,
+  status: "LIVE",
+  expiresAt: new Date(),
+  duration: 1
+};
 
 export default function CreatePollPage() {
-  const [currentStep, setCurrentStep] = useState(1)
-  const [pollData, setPollData] = useState<PollData>({
-    title: "",
-    description: "",
-    options: ["", ""],
-    duration: { value: 24, unit: "hours" },
-    allowMultipleVotes: false,
-    requireAuth: false,
-  })
+  const [currentStep, setCurrentStep] = useState(1);
+  const [pollData, setPollData] = useState<PollData>(defaultPollData);
 
   const updatePollData = (data: Partial<PollData>) => {
-    setPollData((prev) => ({ ...prev, ...data }))
-  }
+    setPollData((prev) => ({ ...prev, ...data }));
+  };
 
   const nextStep = () => {
     if (currentStep < steps.length) {
-      setCurrentStep(currentStep + 1)
+      setCurrentStep(currentStep + 1);
     }
-  }
+  };
 
   const prevStep = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1)
+      setCurrentStep(currentStep - 1);
     }
-  }
+  };
 
   const canProceed = () => {
     switch (currentStep) {
@@ -58,23 +56,28 @@ export default function CreatePollPage() {
           pollData.title.trim() &&
           pollData.description.trim() &&
           pollData.options.filter((opt) => opt.trim()).length >= 2
-        )
+        );
       case 2:
-        return pollData.duration.value > 0
+        // If duration is an object
+        return pollData.duration > 0;
       case 3:
-        return true
+        return true;
       default:
-        return false
+        return false;
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-metal-50 via-yellow-metal-100 to-yellow-metal-200">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-yellow-metal-900 mb-2">Create New Poll</h1>
-          <p className="text-yellow-metal-700">Follow the steps below to create your poll</p>
+          <h1 className="text-3xl font-bold text-yellow-metal-900 mb-2">
+            Create New Poll
+          </h1>
+          <p className="text-yellow-metal-700">
+            Follow the steps below to create your poll
+          </p>
         </div>
 
         {/* Step Indicator */}
@@ -88,21 +91,29 @@ export default function CreatePollPage() {
                       currentStep > step.id
                         ? "bg-gradient-to-r from-yellow-metal-500 to-yellow-metal-600 text-white"
                         : currentStep === step.id
-                          ? "bg-gradient-to-r from-yellow-metal-400 to-yellow-metal-500 text-white shadow-lg"
-                          : "bg-yellow-metal-200 text-yellow-metal-600"
+                        ? "bg-gradient-to-r from-yellow-metal-400 to-yellow-metal-500 text-white shadow-lg"
+                        : "bg-yellow-metal-200 text-yellow-metal-600"
                     }`}
                   >
-                    {currentStep > step.id ? <Check className="w-5 h-5" /> : step.id}
+                    {currentStep > step.id ? (
+                      <Check className="w-5 h-5" />
+                    ) : (
+                      step.id
+                    )}
                   </div>
                   <div className="mt-2 text-center">
                     <p
                       className={`text-sm font-medium ${
-                        currentStep >= step.id ? "text-yellow-metal-900" : "text-yellow-metal-600"
+                        currentStep >= step.id
+                          ? "text-yellow-metal-900"
+                          : "text-yellow-metal-600"
                       }`}
                     >
                       {step.name}
                     </p>
-                    <p className="text-xs text-yellow-metal-600 max-w-24">{step.description}</p>
+                    <p className="text-xs text-yellow-metal-600 max-w-24">
+                      {step.description}
+                    </p>
                   </div>
                 </div>
                 {index < steps.length - 1 && (
@@ -127,8 +138,18 @@ export default function CreatePollPage() {
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-yellow-metal-300/20 to-transparent rounded-full translate-y-12 -translate-x-12"></div>
 
             <div className="relative z-10">
-              {currentStep === 1 && <PollDetails pollData={pollData} updatePollData={updatePollData} />}
-              {currentStep === 2 && <PollDuration pollData={pollData} updatePollData={updatePollData} />}
+              {currentStep === 1 && (
+                <PollDetails
+                  pollData={pollData}
+                  updatePollData={updatePollData}
+                />
+              )}
+              {currentStep === 2 && (
+                <PollDuration
+                  pollData={pollData}
+                  updatePollData={updatePollData}
+                />
+              )}
               {currentStep === 3 && <PollPreview pollData={pollData} />}
             </div>
           </div>
@@ -157,8 +178,8 @@ export default function CreatePollPage() {
               <button
                 onClick={() => {
                   // Handle poll creation
-                  console.log("Creating poll:", pollData)
-                  alert("Poll created successfully!")
+                  console.log("Creating poll:", pollData);
+                  alert("Poll created successfully!");
                 }}
                 className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
               >
@@ -170,5 +191,5 @@ export default function CreatePollPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

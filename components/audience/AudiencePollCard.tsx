@@ -1,112 +1,114 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Check, Clock, Users, Vote, AlertCircle, CheckCircle2, Timer, ChevronRight } from "lucide-react"
-
-interface PollData {
-  id: string
-  title: string
-  description: string
-  options: string[]
-  votes: number[]
-  totalVotes: number
-  status: "LIVE" | "CLOSED"
-  createdAt: Date
-  expiresAt: Date
-  allowMultipleVotes: boolean
-  requireAuth: boolean
-}
+import { useState, useEffect } from "react";
+import {
+  Check,
+  Clock,
+  Users,
+  Vote,
+  AlertCircle,
+  CheckCircle2,
+  Timer,
+  ChevronRight,
+} from "lucide-react";
+import { PollData } from "@/types";
 
 interface AudiencePollCardProps {
-  pollData: PollData
-  onVote: (selectedOptions: number[]) => void
+  pollData: PollData;
+  onVote: (selectedOptions: number[]) => void;
 }
 
-type ViewState = "voting" | "results" | "closed"
+type ViewState = "voting" | "results" | "closed";
 
-export default function AudiencePollCard({ pollData, onVote }: AudiencePollCardProps) {
-  const [selectedOptions, setSelectedOptions] = useState<number[]>([])
-  const [viewState, setViewState] = useState<ViewState>("voting")
-  const [timeLeft, setTimeLeft] = useState("")
-  const [hasVoted, setHasVoted] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export default function AudiencePollCard({
+  pollData,
+  onVote,
+}: AudiencePollCardProps) {
+  const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
+  const [viewState, setViewState] = useState<ViewState>("voting");
+  const [timeLeft, setTimeLeft] = useState("");
+  const [hasVoted, setHasVoted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Check if poll is expired
-  const isExpired = new Date() > pollData.expiresAt
-  const isPollClosed = pollData.status === "CLOSED" || isExpired
+  const isExpired =
+    pollData.expiresAt !== undefined && new Date() > pollData.expiresAt;
+  const isPollClosed = pollData.status === "ENDED" || isExpired;
 
   // Calculate time left
   useEffect(() => {
     const updateTimeLeft = () => {
-      const now = new Date()
-      const timeRemaining = pollData.expiresAt.getTime() - now.getTime()
+      if (!pollData.expiresAt) {
+        setTimeLeft("Unknown");
+        setViewState("closed");
+        return;
+      }
+      const now = new Date();
+      const timeRemaining = pollData.expiresAt.getTime() - now.getTime();
 
       if (timeRemaining <= 0) {
-        setTimeLeft("Expired")
+        setTimeLeft("Expired");
         if (!hasVoted) {
-          setViewState("closed")
+          setViewState("closed");
         }
-        return
+        return;
       }
 
-      const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24))
-      const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-      const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60))
+      const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+      const hours = Math.floor(
+        (timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+      );
+      const minutes = Math.floor(
+        (timeRemaining % (1000 * 60 * 60)) / (1000 * 60)
+      );
 
       if (days > 0) {
-        setTimeLeft(`${days}d ${hours}h left`)
+        setTimeLeft(`${days}d ${hours}h left`);
       } else if (hours > 0) {
-        setTimeLeft(`${hours}h ${minutes}m left`)
+        setTimeLeft(`${hours}h ${minutes}m left`);
       } else {
-        setTimeLeft(`${minutes}m left`)
+        setTimeLeft(`${minutes}m left`);
       }
-    }
+    };
 
-    updateTimeLeft()
-    const interval = setInterval(updateTimeLeft, 60000)
-    return () => clearInterval(interval)
-  }, [pollData.expiresAt, hasVoted])
+    updateTimeLeft();
+    const interval = setInterval(updateTimeLeft, 60000);
+    return () => clearInterval(interval);
+  }, [pollData.expiresAt, hasVoted]);
 
   // Check if user has already voted
   useEffect(() => {
-    const votedPolls = JSON.parse(localStorage.getItem("votedPolls") || "[]")
+    const votedPolls = JSON.parse(localStorage.getItem("votedPolls") || "[]");
     if (votedPolls.includes(pollData.id)) {
-      setHasVoted(true)
-      setViewState("results")
+      setHasVoted(true);
+      setViewState("results");
     } else if (isPollClosed) {
-      setViewState("closed")
+      setViewState("closed");
     }
-  }, [pollData.id, isPollClosed])
+  }, [pollData.id, isPollClosed]);
 
   const handleOptionSelect = (optionIndex: number) => {
-    if (viewState !== "voting" || isPollClosed) return
-
-    if (pollData.allowMultipleVotes) {
-      setSelectedOptions((prev) =>
-        prev.includes(optionIndex) ? prev.filter((i) => i !== optionIndex) : [...prev, optionIndex],
-      )
-    } else {
-      setSelectedOptions([optionIndex])
-    }
-  }
+    if (viewState !== "voting" || isPollClosed) return;
+    setSelectedOptions([optionIndex]);
+  };
 
   const handleVoteSubmit = async () => {
-    if (selectedOptions.length === 0 || isSubmitting) return
+    if (selectedOptions.length === 0 || isSubmitting) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
     // Mark as voted in localStorage
-    const votedPolls = JSON.parse(localStorage.getItem("votedPolls") || "[]")
-    votedPolls.push(pollData.id)
-    localStorage.setItem("votedPolls", JSON.stringify(votedPolls))
+    const votedPolls = JSON.parse(localStorage.getItem("votedPolls") || "[]");
+    votedPolls.push(pollData.id);
+    localStorage.setItem("votedPolls", JSON.stringify(votedPolls));
 
-    setHasVoted(true)
-    setViewState("results")
-    setIsSubmitting(false)
-    onVote(selectedOptions)
-  }
+    setHasVoted(true);
+    setViewState("results");
+    setIsSubmitting(false);
+    onVote(selectedOptions);
+  };
 
   const getStatusInfo = () => {
     if (isPollClosed) {
@@ -114,7 +116,7 @@ export default function AudiencePollCard({ pollData, onVote }: AudiencePollCardP
         text: "CLOSED",
         icon: <AlertCircle className="w-3 h-3" />,
         color: "bg-red-100 text-red-700 border-red-200",
-      }
+      };
     }
 
     if (hasVoted) {
@@ -122,17 +124,17 @@ export default function AudiencePollCard({ pollData, onVote }: AudiencePollCardP
         text: "VOTED",
         icon: <CheckCircle2 className="w-3 h-3" />,
         color: "bg-green-100 text-green-700 border-green-200",
-      }
+      };
     }
 
     return {
       text: "LIVE",
       icon: <Vote className="w-3 h-3" />,
       color: "bg-green-100 text-green-700 border-green-200",
-    }
-  }
+    };
+  };
 
-  const status = getStatusInfo()
+  const status = getStatusInfo();
 
   return (
     <div className="bg-gradient-to-br from-yellow-metal-50 to-yellow-metal-100 border border-yellow-metal-200 rounded-2xl shadow-lg p-4 sm:p-6 w-full max-w-2xl mx-auto">
@@ -143,19 +145,29 @@ export default function AudiencePollCard({ pollData, onVote }: AudiencePollCardP
             <div className="p-2 bg-gradient-to-br from-yellow-metal-400 to-yellow-metal-500 rounded-lg">
               <Vote className="w-4 h-4 text-white" />
             </div>
-            <div className={`px-2 py-1 rounded-full border ${status.color} flex items-center gap-1`}>
+            <div
+              className={`px-2 py-1 rounded-full border ${status.color} flex items-center gap-1`}
+            >
               {status.icon}
-              <span className="text-xs font-semibold uppercase tracking-wide">{status.text}</span>
+              <span className="text-xs font-semibold uppercase tracking-wide">
+                {status.text}
+              </span>
             </div>
           </div>
           <div className="flex items-center gap-1 bg-yellow-metal-100 px-2 py-1 rounded-lg border border-yellow-metal-200">
             <Timer className="w-3 h-3 text-yellow-metal-700" />
-            <span className="text-xs font-medium text-yellow-metal-800">{timeLeft}</span>
+            <span className="text-xs font-medium text-yellow-metal-800">
+              {timeLeft}
+            </span>
           </div>
         </div>
 
-        <h1 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight mb-2">{pollData.title}</h1>
-        <p className="text-sm text-gray-600 leading-relaxed">{pollData.description}</p>
+        <h1 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight mb-2">
+          {pollData.title}
+        </h1>
+        <p className="text-sm text-gray-600 leading-relaxed">
+          {pollData.description}
+        </p>
       </div>
 
       {/* Voting Section */}
@@ -166,9 +178,7 @@ export default function AudiencePollCard({ pollData, onVote }: AudiencePollCardP
             <div className="flex items-center gap-2">
               <Vote className="w-4 h-4 text-blue-600" />
               <p className="text-blue-800 text-sm font-medium">
-                {pollData.allowMultipleVotes
-                  ? "You can select multiple options"
-                  : "Choose one option that best represents your choice"}
+                Choose one option that best represents your choice
               </p>
             </div>
           </div>
@@ -176,8 +186,8 @@ export default function AudiencePollCard({ pollData, onVote }: AudiencePollCardP
           {/* Options */}
           <div className="space-y-3">
             {pollData.options.map((option, index) => {
-              const isSelected = selectedOptions.includes(index)
-              const optionLetter = String.fromCharCode(65 + index)
+              const isSelected = selectedOptions.includes(index);
+              const optionLetter = String.fromCharCode(65 + index);
 
               return (
                 <button
@@ -198,12 +208,18 @@ export default function AudiencePollCard({ pollData, onVote }: AudiencePollCardP
                           : "bg-yellow-metal-200 text-yellow-metal-800 group-hover:bg-yellow-metal-300"
                       }`}
                     >
-                      {isSelected ? <Check className="w-4 h-4" /> : optionLetter}
+                      {isSelected ? (
+                        <Check className="w-4 h-4" />
+                      ) : (
+                        optionLetter
+                      )}
                     </div>
 
                     {/* Option Text */}
                     <div className="flex-1">
-                      <p className="text-sm sm:text-base font-medium text-gray-900">{option}</p>
+                      <p className="text-sm sm:text-base font-medium text-gray-900">
+                        {option}
+                      </p>
                     </div>
 
                     {/* Selection Indicator */}
@@ -215,13 +231,15 @@ export default function AudiencePollCard({ pollData, onVote }: AudiencePollCardP
                       )}
                       <ChevronRight
                         className={`w-4 h-4 transition-all duration-200 ${
-                          isSelected ? "text-yellow-metal-600 rotate-90" : "text-yellow-metal-400"
+                          isSelected
+                            ? "text-yellow-metal-600 rotate-90"
+                            : "text-yellow-metal-400"
                         }`}
                       />
                     </div>
                   </div>
                 </button>
-              )
+              );
             })}
           </div>
 
@@ -267,8 +285,12 @@ export default function AudiencePollCard({ pollData, onVote }: AudiencePollCardP
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-green-600" />
                 <div>
-                  <p className="text-green-800 font-semibold text-sm">Thank you for voting!</p>
-                  <p className="text-green-700 text-xs">Here are the current results:</p>
+                  <p className="text-green-800 font-semibold text-sm">
+                    Thank you for voting!
+                  </p>
+                  <p className="text-green-700 text-xs">
+                    Here are the current results:
+                  </p>
                 </div>
               </div>
             </div>
@@ -280,8 +302,12 @@ export default function AudiencePollCard({ pollData, onVote }: AudiencePollCardP
               <div className="flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 text-red-600" />
                 <div>
-                  <p className="text-red-800 font-semibold text-sm">This poll has ended</p>
-                  <p className="text-red-700 text-xs">Here are the final results:</p>
+                  <p className="text-red-800 font-semibold text-sm">
+                    This poll has ended
+                  </p>
+                  <p className="text-red-700 text-xs">
+                    Here are the final results:
+                  </p>
                 </div>
               </div>
             </div>
@@ -290,10 +316,14 @@ export default function AudiencePollCard({ pollData, onVote }: AudiencePollCardP
           {/* Results */}
           <div className="space-y-3">
             {pollData.options.map((option, index) => {
-              const voteCount = pollData.votes[index] || 0
-              const percent = pollData.totalVotes > 0 ? Math.round((voteCount / pollData.totalVotes) * 100) : 0
-              const isLeading = voteCount === Math.max(...pollData.votes) && voteCount > 0
-              const wasSelected = selectedOptions.includes(index)
+              const voteCount = pollData.votes[index] || 0;
+              const percent =
+                pollData.totalVotes > 0
+                  ? Math.round((voteCount / pollData.totalVotes) * 100)
+                  : 0;
+              const isLeading =
+                voteCount === Math.max(...pollData.votes) && voteCount > 0;
+              const wasSelected = selectedOptions.includes(index);
 
               return (
                 <div
@@ -306,8 +336,12 @@ export default function AudiencePollCard({ pollData, onVote }: AudiencePollCardP
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      {isLeading && <div className="w-2 h-2 bg-yellow-metal-500 rounded-full animate-pulse"></div>}
-                      <span className="text-sm font-semibold text-gray-900">{option}</span>
+                      {isLeading && (
+                        <div className="w-2 h-2 bg-yellow-metal-500 rounded-full animate-pulse"></div>
+                      )}
+                      <span className="text-sm font-semibold text-gray-900">
+                        {option}
+                      </span>
                       {wasSelected && (
                         <div className="bg-yellow-metal-500 text-white px-2 py-1 rounded-full text-xs font-medium">
                           Your Choice
@@ -318,7 +352,9 @@ export default function AudiencePollCard({ pollData, onVote }: AudiencePollCardP
                       <span className="text-xs text-yellow-metal-600 bg-yellow-metal-100 px-2 py-1 rounded font-medium">
                         {voteCount} votes
                       </span>
-                      <span className="text-lg font-bold text-gray-800 min-w-[3rem] text-right">{percent}%</span>
+                      <span className="text-lg font-bold text-gray-800 min-w-[3rem] text-right">
+                        {percent}%
+                      </span>
                     </div>
                   </div>
 
@@ -338,7 +374,7 @@ export default function AudiencePollCard({ pollData, onVote }: AudiencePollCardP
                     )}
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
         </div>
@@ -352,8 +388,12 @@ export default function AudiencePollCard({ pollData, onVote }: AudiencePollCardP
               <Users className="w-4 h-4 text-yellow-metal-800" />
             </div>
             <div>
-              <p className="text-xs text-yellow-metal-600 font-medium">Total Participants</p>
-              <p className="text-lg font-bold text-yellow-metal-900">{pollData.totalVotes}</p>
+              <p className="text-xs text-yellow-metal-600 font-medium">
+                Total Participants
+              </p>
+              <p className="text-lg font-bold text-yellow-metal-900">
+                {pollData.totalVotes}
+              </p>
             </div>
           </div>
 
@@ -362,12 +402,16 @@ export default function AudiencePollCard({ pollData, onVote }: AudiencePollCardP
               <Clock className="w-4 h-4 text-yellow-metal-800" />
             </div>
             <div className="text-right">
-              <p className="text-xs text-yellow-metal-600 font-medium">Poll Status</p>
-              <p className="text-lg font-bold text-yellow-metal-900">{timeLeft}</p>
+              <p className="text-xs text-yellow-metal-600 font-medium">
+                Poll Status
+              </p>
+              <p className="text-lg font-bold text-yellow-metal-900">
+                {timeLeft}
+              </p>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

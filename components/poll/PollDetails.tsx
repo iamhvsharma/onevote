@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus, X, FileText, MessageSquare } from "lucide-react";
-import type { PollData } from "@/app/(dashboard)/new-poll/page";
+import { PollData } from "@/types";
 
 interface PollDetailsProps {
   pollData: PollData;
@@ -132,53 +132,6 @@ export default function PollDetails({
 
           <div className="text-xs text-yellow-metal-600">
             You can add up to 6 options. At least 2 options are required.
-          </div>
-        </div>
-
-        {/* Poll Settings */}
-        <div className="space-y-4 pt-4 border-t border-yellow-metal-200">
-          <h3 className="text-sm font-semibold text-yellow-metal-800">
-            Poll Settings
-          </h3>
-
-          <div className="space-y-3">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={pollData.allowMultipleVotes}
-                onChange={(e) =>
-                  updatePollData({ allowMultipleVotes: e.target.checked })
-                }
-                className="w-5 h-5 text-yellow-metal-500 bg-white border-2 border-yellow-metal-300 rounded focus:ring-yellow-metal-400 focus:ring-2"
-              />
-              <div>
-                <span className="text-sm font-medium text-yellow-metal-800">
-                  Allow multiple votes
-                </span>
-                <p className="text-xs text-yellow-metal-600">
-                  Users can select multiple options
-                </p>
-              </div>
-            </label>
-
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={pollData.requireAuth}
-                onChange={(e) =>
-                  updatePollData({ requireAuth: e.target.checked })
-                }
-                className="w-5 h-5 text-yellow-metal-500 bg-white border-2 border-yellow-metal-300 rounded focus:ring-yellow-metal-400 focus:ring-2"
-              />
-              <div>
-                <span className="text-sm font-medium text-yellow-metal-800">
-                  Require authentication
-                </span>
-                <p className="text-xs text-yellow-metal-600">
-                  Only logged-in users can vote
-                </p>
-              </div>
-            </label>
           </div>
         </div>
       </div>

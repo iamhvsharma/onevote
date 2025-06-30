@@ -1,7 +1,7 @@
 "use client";
 
 import { Eye, Share2, Settings, TrendingUp, Users, Clock } from "lucide-react";
-import type { PollData } from "@/app/(dashboard)/new-poll/page";
+import { PollData } from "@/types";
 
 interface PollPreviewProps {
   pollData: PollData;
@@ -141,8 +141,8 @@ export default function PollPreview({ pollData }: PollPreviewProps) {
                   <div className="text-right">
                     <p className="text-xs text-yellow-metal-600">Left</p>
                     <p className="text-sm font-bold text-yellow-metal-900">
-                      {pollData.duration.value}
-                      {pollData.duration.unit.charAt(0)}
+                      {pollData.duration}
+                      hours {/* check */}
                     </p>
                   </div>
                 </div>
@@ -189,38 +189,7 @@ export default function PollPreview({ pollData }: PollPreviewProps) {
                 <div className="flex justify-between">
                   <span className="text-yellow-metal-600">Duration:</span>
                   <span className="text-yellow-metal-900 font-medium">
-                    {pollData.duration.value} {pollData.duration.unit}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Settings */}
-            <div className="bg-white border-2 border-yellow-metal-200 rounded-xl p-4">
-              <h4 className="font-semibold text-yellow-metal-900 mb-3">
-                Settings
-              </h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-yellow-metal-600">Multiple votes:</span>
-                  <span
-                    className={`font-medium ${
-                      pollData.allowMultipleVotes
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {pollData.allowMultipleVotes ? "Allowed" : "Not allowed"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-yellow-metal-600">Authentication:</span>
-                  <span
-                    className={`font-medium ${
-                      pollData.requireAuth ? "text-green-600" : "text-red-600"
-                    }`}
-                  >
-                    {pollData.requireAuth ? "Required" : "Not required"}
+                    {pollData.duration} hours
                   </span>
                 </div>
               </div>
