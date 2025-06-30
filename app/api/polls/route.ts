@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getUser } from "@/lib/user";
 import { prisma } from "@/lib/db";
 import { pollSchema } from "@/schemas/zodSchema";
+import { auth } from "@clerk/nextjs/server";
 
 // Zod schema for validating poll creation request
 
@@ -54,4 +55,19 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
+}
+
+export async function GET() {
+  const user = await getUser();
+  const userId = user?.id;
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const polls = await prisma.poll.findMany({
+    where: { creatorId: userId },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return NextResponse.json(polls);
 }

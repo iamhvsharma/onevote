@@ -1,27 +1,48 @@
+"use client";
+
 import PollCard from "@/components/dashboard/PollCard";
 import { Search } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-const polls = [
-  {
-    id: "1",
-    title: "Favorite Programming Language",
-    description: "Vote for your favorite programming language!",
-    status: "LIVE",
-    options: ["JavaScript", "Python", "Java", "C++"],
-    votes: [10, 5, 3, 2],
-  },
-  {
-    id: "2",
-    title: "Best Frontend Framework",
-    description: "Which frontend framework do you prefer?",
-    status: "CLOSED",
-    options: ["React", "Vue", "Angular", "Svelte"],
-    votes: [15, 8, 4, 1],
-  },
-];
+interface Poll {
+  id: string;
+  title: string;
+  description: string;
+  status: "LIVE" | "CLOSED";
+  options: string[];
+  votes: number[];
+  expiresAt: string; // ISO string from API
+}
 
 const Dashboard = () => {
+  const [polls, setPolls] = useState<Poll[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const fetchPolls = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/polls");
+        if (!res.ok) throw new Error("Failed to fetch polls");
+        const data = await res.json();
+        setPolls(data);
+      } catch (err: any) {
+        setError(err.message || "Error fetching polls");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPolls();
+  }, []);
+
+  // Filter polls by search
+  const filteredPolls = polls.filter((poll) =>
+    poll.title.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="bg-white text-yellow-metal-900 min-h-screen">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 lg:pt-12 pb-6">
@@ -36,6 +57,8 @@ const Dashboard = () => {
               type="text"
               name="search"
               placeholder="Search polls..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               className="w-full sm:w-[300px] pl-10 pr-4 px-4 py-2 border border-yellow-metal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-metal-500 transition"
             />
           </div>
@@ -46,16 +69,29 @@ const Dashboard = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-        {polls.map((poll) => (
-          <PollCard
-            key={poll.id}
-            title={poll.title}
-            description={poll.description}
-            options={poll.options}
-            votes={poll.votes}
-            status={poll.status as "LIVE" | "CLOSED"}
-          />
-        ))}
+        {loading ? (
+          <div className="col-span-full text-center text-yellow-metal-600">
+            Loading polls...
+          </div>
+        ) : error ? (
+          <div className="col-span-full text-center text-red-600">{error}</div>
+        ) : filteredPolls.length === 0 ? (
+          <div className="col-span-full text-center text-yellow-metal-600">
+            No polls found.
+          </div>
+        ) : (
+          filteredPolls.map((poll) => (
+            <PollCard
+              key={poll.id}
+              title={poll.title}
+              description={poll.description}
+              options={poll.options}
+              votes={poll.votes}
+              status={poll.status}
+              expiresAt={poll.expiresAt}
+            />
+          ))
+        )}
       </div>
     </div>
   );

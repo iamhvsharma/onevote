@@ -188,8 +188,8 @@ export default function CreatePollPage() {
                     ).toISOString();
                     const result = await createPoll({ ...pollData, expiresAt });
                     alert("Poll created successfully!");
-                    router.push(`/poll/${result.poll.id}`);
-                  } catch (err: any) {
+                    router.push(`/all-polls`);
+                  } catch (err: any) {  
                     alert(err.message);
                   } finally {
                     setIsSubmitting(false);

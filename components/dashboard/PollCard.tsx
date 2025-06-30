@@ -1,18 +1,46 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { Copy, ExternalLink, Trash2, TrendingUp, Users, Clock } from "lucide-react"
+import type React from "react";
+import {
+  Copy,
+  ExternalLink,
+  Trash2,
+  TrendingUp,
+  Users,
+  Clock,
+} from "lucide-react";
 
 interface PollCardProps {
-  title: string
-  description: string
-  status?: "LIVE" | "CLOSED"
-  options: string[]
-  votes: number[]
+  title: string;
+  description: string;
+  status?: "LIVE" | "CLOSED";
+  options: string[];
+  votes: number[];
+  expiresAt: string; // ISO string
 }
 
-const PollCard: React.FC<PollCardProps> = ({ title, description, status, options, votes }) => {
-  const totalVotes = votes.reduce((a, b) => a + b, 0)
+const getTimeLeft = (expiresAt: string) => {
+  const now = new Date();
+  const expiry = new Date(expiresAt);
+  const diffMs = expiry.getTime() - now.getTime();
+  if (diffMs <= 0) return "Expired";
+  const diffMins = Math.floor(diffMs / 60000);
+  const hours = Math.floor(diffMins / 60);
+  const mins = diffMins % 60;
+  if (hours > 0) return `${hours}h ${mins}m`;
+  return `${mins}m`;
+};
+
+const PollCard: React.FC<PollCardProps> = ({
+  title,
+  description,
+  status,
+  options,
+  votes,
+  expiresAt,
+}) => {
+  const totalVotes = votes.reduce((a, b) => a + b, 0);
+  const timeLeft = getTimeLeft(expiresAt);
 
   return (
     <div className="bg-gradient-to-br from-yellow-metal-50 to-yellow-metal-100 border-2 border-yellow-metal-200 rounded-2xl shadow-xl hover:shadow-yellow-metal-200/50 transition-all duration-300 p-5 w-full max-w-sm h-fit min-h-[420px] flex flex-col relative overflow-hidden">
@@ -27,20 +55,27 @@ const PollCard: React.FC<PollCardProps> = ({ title, description, status, options
             <TrendingUp className="w-4 h-4 text-yellow-metal-50" />
           </div>
           <div className="bg-yellow-metal-200/50 px-2 py-0.5 rounded-full">
-            <span className="text-xs font-semibold text-yellow-metal-700 uppercase tracking-wide">{status}</span>
+            <span className="text-xs font-semibold text-yellow-metal-700 uppercase tracking-wide">
+              {status}
+            </span>
           </div>
         </div>
 
-        <h2 className="text-lg font-bold text-yellow-metal-900 leading-tight mb-2 line-clamp-2">{title}</h2>
-        <p className="text-sm text-yellow-metal-700 leading-relaxed line-clamp-2">{description}</p>
+        <h2 className="text-lg font-bold text-yellow-metal-900 leading-tight mb-2 line-clamp-2">
+          {title}
+        </h2>
+        <p className="text-sm text-yellow-metal-700 leading-relaxed line-clamp-2">
+          {description}
+        </p>
       </div>
 
       {/* Poll Options - flex-1 to take available space */}
       <div className="space-y-3 relative z-10 flex-1">
         {options.map((option, index) => {
-          const voteCount = votes[index]
-          const percent = totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0
-          const isLeading = voteCount === Math.max(...votes) && voteCount > 0
+          const voteCount = votes[index];
+          const percent =
+            totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0;
+          const isLeading = voteCount === Math.max(...votes) && voteCount > 0;
 
           return (
             <div key={index} className="group">
@@ -49,13 +84,17 @@ const PollCard: React.FC<PollCardProps> = ({ title, description, status, options
                   {isLeading && (
                     <div className="w-1.5 h-1.5 bg-yellow-metal-500 rounded-full animate-pulse flex-shrink-0"></div>
                   )}
-                  <span className="font-medium text-yellow-metal-900 text-sm truncate">{option}</span>
+                  <span className="font-medium text-yellow-metal-900 text-sm truncate">
+                    {option}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <span className="text-xs text-yellow-metal-600 bg-yellow-metal-100 px-1.5 py-0.5 rounded">
                     {voteCount}
                   </span>
-                  <span className="text-sm font-bold text-yellow-metal-800 min-w-[2.5rem] text-right">{percent}%</span>
+                  <span className="text-sm font-bold text-yellow-metal-800 min-w-[2.5rem] text-right">
+                    {percent}%
+                  </span>
                 </div>
               </div>
 
@@ -78,7 +117,7 @@ const PollCard: React.FC<PollCardProps> = ({ title, description, status, options
                 )}
               </div>
             </div>
-          )
+          );
         })}
       </div>
 
@@ -91,7 +130,9 @@ const PollCard: React.FC<PollCardProps> = ({ title, description, status, options
             </div>
             <div>
               <p className="text-xs text-yellow-metal-600">Total</p>
-              <p className="text-sm font-bold text-yellow-metal-900">{totalVotes}</p>
+              <p className="text-sm font-bold text-yellow-metal-900">
+                {totalVotes}
+              </p>
             </div>
           </div>
 
@@ -101,7 +142,9 @@ const PollCard: React.FC<PollCardProps> = ({ title, description, status, options
             </div>
             <div className="text-right">
               <p className="text-xs text-yellow-metal-600">Left</p>
-              <p className="text-sm font-bold text-yellow-metal-900">24h</p>
+              <p className="text-sm font-bold text-yellow-metal-900">
+                {timeLeft}
+              </p>
             </div>
           </div>
         </div>
@@ -111,12 +154,16 @@ const PollCard: React.FC<PollCardProps> = ({ title, description, status, options
       <div className="flex items-center gap-2 relative z-10 mt-auto">
         <button className="flex-1 flex items-center justify-center gap-1.5 p-2.5 bg-yellow-metal-200 hover:bg-yellow-metal-300 rounded-xl transition-all duration-200 group shadow-md hover:shadow-lg">
           <Copy className="w-3.5 h-3.5 text-yellow-metal-700 group-hover:text-yellow-metal-800" />
-          <span className="text-xs font-medium text-yellow-metal-800">Copy</span>
+          <span className="text-xs font-medium text-yellow-metal-800">
+            Copy
+          </span>
         </button>
 
         <button className="flex-1 flex items-center justify-center gap-1.5 p-2.5 bg-yellow-metal-400 hover:bg-yellow-metal-500 rounded-xl transition-all duration-200 group shadow-md hover:shadow-lg">
           <ExternalLink className="w-3.5 h-3.5 text-yellow-metal-50 group-hover:text-white" />
-          <span className="text-xs font-medium text-yellow-metal-50">Share</span>
+          <span className="text-xs font-medium text-yellow-metal-50">
+            Share
+          </span>
         </button>
 
         <button className="p-2.5 bg-red-100 hover:bg-red-200 rounded-xl transition-all duration-200 group shadow-md hover:shadow-lg">
@@ -128,7 +175,7 @@ const PollCard: React.FC<PollCardProps> = ({ title, description, status, options
         </button>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default PollCard;
