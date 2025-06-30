@@ -34,8 +34,7 @@ model Poll {
   options            String[]   // e.g., ["A", "B", "C"]
   votes              Int[]      // parallel to options; e.g., [3, 5, 2]
   totalVotes         Int        @default(0)
-  allowMultipleVotes Boolean    @default(false)
-  requireAuth        Boolean    @default(false)
+  duration           Int       // in hours
   status             PollStatus @default(LIVE)
   createdAt          DateTime   @default(now())
   expiresAt          DateTime
