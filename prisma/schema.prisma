@@ -32,7 +32,7 @@ model Poll {
   title              String
   description        String
   options            String[]   // e.g., ["A", "B", "C"]
-  votes              Int[]      // parallel to options; e.g., [3, 5, 2]
+  votes              Int[]      @default([]) // parallel to options; e.g., [3, 5, 2]
   totalVotes         Int        @default(0)
   duration           Int       // in hours
   status             PollStatus @default(LIVE)

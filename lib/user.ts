@@ -1,20 +1,22 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { prisma } from "./db";
-import { sessionClaimsSchema, SessionClaims } from "../schemas/zodSchema";
 
 export async function getUser() {
-  const { userId, sessionClaims } = await auth();
+  const { userId } = await auth();
 
-  if (!userId || !sessionClaims) {
+  if (!userId) {
     throw new Error("User not authenticated");
   }
 
-  const parsed = sessionClaimsSchema.safeParse(sessionClaims);
-  if (!parsed.success) {
-    throw new Error("Invalid session claims");
+  // Fetch user details from Clerk
+  const user = await (await clerkClient()).users.getUser(userId);
+
+  if (!user) {
+    throw new Error("User not found in Clerk");
   }
 
-  const { firstName, lastName, email } = parsed.data;
+  const { firstName, lastName, emailAddresses } = user;
+  const email = emailAddresses?.[0]?.emailAddress || "";
 
   // Check if user already exists
   const existingUser = await prisma.user.findUnique({
@@ -27,9 +29,9 @@ export async function getUser() {
   const newUser = await prisma.user.create({
     data: {
       id: userId,
-      firstName,
-      lastName,
-      email,
+      firstName: firstName || "",
+      lastName: lastName || "",
+      email: email,
     },
   });
 

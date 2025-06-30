@@ -3,11 +3,11 @@ export interface PollData {
   title: string;
   description: string;
   options: string[];
-  votes: number[];
-  totalVotes: number;
+  votes?: number[];
+  totalVotes?: number;
   duration: number;
-  status: "LIVE" | "ENDED";
+  status?: "LIVE" | "CLOSED";
   creatorId?: string;
-  expiresAt?: Date;
+  expiresAt: string;
   createdAt?: Date;
 }

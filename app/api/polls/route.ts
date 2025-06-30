@@ -27,14 +27,21 @@ export async function POST(req: Request) {
 
     // 3. Create poll
     const { title, description, options, expiresAt, duration } = parsed.data;
+    // Initialize votes and totalVotes
+    const votes = new Array(options.length).fill(0);
+    const totalVotes = 0;
+    const status = "LIVE";
 
     const newPoll = await prisma.poll.create({
       data: {
         title,
         description: description || "",
         options,
+        votes,
+        totalVotes,
         duration,
-        expiresAt: new Date(Date.now() + duration * 60 * 60 * 1000),
+        expiresAt: new Date(expiresAt),
+        status,
         creatorId: user.id,
       },
     });

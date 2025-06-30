@@ -6,6 +6,8 @@ import PollDetails from "@/components/poll/PollDetails";
 import PollDuration from "@/components/poll/PollDuration";
 import PollPreview from "@/components/poll/PollPreview";
 import { PollData } from "@/types";
+import { createPoll } from "@/lib/createPoll";
+import { useRouter } from "next/navigation";
 
 const steps = [
   {
@@ -22,16 +24,15 @@ const defaultPollData: PollData = {
   title: "",
   description: "",
   options: ["", ""],
-  votes: [],
-  totalVotes: 0,
-  status: "LIVE",
-  expiresAt: new Date(),
-  duration: 1
+  duration: 1,
+  expiresAt: "",
 };
 
 export default function CreatePollPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [pollData, setPollData] = useState<PollData>(defaultPollData);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   const updatePollData = (data: Partial<PollData>) => {
     setPollData((prev) => ({ ...prev, ...data }));
@@ -176,15 +177,34 @@ export default function CreatePollPage() {
               </button>
             ) : (
               <button
-                onClick={() => {
-                  // Handle poll creation
-                  console.log("Creating poll:", pollData);
-                  alert("Poll created successfully!");
+                disabled={isSubmitting}
+                onClick={async () => {
+                  setIsSubmitting(true);
+                  try {
+                    // Calculate expiresAt as ISO string based on duration (in hours)
+                    const now = new Date();
+                    const expiresAt = new Date(
+                      now.getTime() + pollData.duration * 60 * 60 * 1000
+                    ).toISOString();
+                    const result = await createPoll({ ...pollData, expiresAt });
+                    alert("Poll created successfully!");
+                    router.push(`/poll/${result.poll.id}`);
+                  } catch (err: any) {
+                    alert(err.message);
+                  } finally {
+                    setIsSubmitting(false);
+                  }
                 }}
                 className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
               >
-                <Check className="w-4 h-4" />
-                Create Poll
+                {isSubmitting ? (
+                  "Creating..."
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Create Poll
+                  </>
+                )}
               </button>
             )}
           </div>
