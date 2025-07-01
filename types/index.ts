@@ -11,3 +11,12 @@ export interface PollData {
   expiresAt: Date;
   createdAt?: Date;
 }
+
+
+export interface CreatedPollResponse {
+  id: string;
+  title: string;
+  description: string;
+  options: string[];
+  expiresAt: string;
+}

@@ -31,8 +31,10 @@ const Dashboard = () => {
         if (!res.ok) throw new Error("Failed to fetch polls");
         const data = await res.json();
         setPolls(data);
-      } catch (err: any) {
-        setError(err.message || "Error fetching polls");
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message || "Error fetching polls");
+        }
       } finally {
         setLoading(false);
       }

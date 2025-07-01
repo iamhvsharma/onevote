@@ -1,6 +1,6 @@
 "use client";
 
-import  React, { useState } from "react";
+import React, { useState } from "react";
 import {
   Copy,
   ExternalLink,
@@ -70,7 +70,7 @@ const PollCard: React.FC<PollCardProps> = ({
     const res = await fetch(`/api/polls/${id}`, { method: "DELETE" });
     if (res.ok) {
       toast.success("Poll deleted");
-      onDelete && onDelete(id);
+      if (onDelete) onDelete(id);
     } else {
       toast.error("Failed to delete poll");
     }
@@ -85,7 +85,7 @@ const PollCard: React.FC<PollCardProps> = ({
     const res = await fetch(`/api/polls/${id}/reset`, { method: "POST" });
     if (res.ok) {
       toast.success("Poll reset");
-      onReset && onReset(id);
+      if (onReset) onReset(id);
     } else {
       toast.error("Failed to reset poll");
     }

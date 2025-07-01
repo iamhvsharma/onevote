@@ -193,8 +193,9 @@ export default function CreatePollPage() {
                     await createPoll({ ...pollData, expiresAt });
                     toast.success("Poll created successfully!");
                     router.push(`/all-polls`);
-                  } catch (err: any) {
-                    toast.error(err.message || "Failed to create poll");
+                  } catch (err: unknown) {
+                    if (err instanceof Error)
+                      toast.error(err.message || "Failed to create poll");
                   } finally {
                     setIsSubmitting(false);
                   }

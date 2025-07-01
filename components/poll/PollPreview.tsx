@@ -202,7 +202,7 @@ export default function PollPreview({ pollData }: PollPreviewProps) {
                 Ready to Share
               </h4>
               <p className="text-sm text-yellow-metal-700">
-                Once created, you'll get a shareable link that you can send to
+                Once created, you will get a shareable link that you can send to
                 participants.
               </p>
             </div>
