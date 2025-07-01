@@ -4,13 +4,14 @@ import { getUser } from "@/lib/user";
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const id = (await params).id;
   const user = await getUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const poll = await prisma.poll.findUnique({ where: { id: params.id } });
+  const poll = await prisma.poll.findUnique({ where: { id: id } });
   if (!poll) {
     return NextResponse.json({ error: "Poll not found" }, { status: 404 });
   }
@@ -24,7 +25,7 @@ export async function POST(
     poll.createdAt.getTime() + poll.duration * 60 * 60 * 1000
   );
   const updated = await prisma.poll.update({
-    where: { id: params.id },
+    where: { id: id },
     data: { votes, totalVotes, expiresAt, status: "LIVE" },
   });
   return NextResponse.json(updated);

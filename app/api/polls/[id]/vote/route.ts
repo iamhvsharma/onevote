@@ -3,10 +3,11 @@ import { prisma } from "@/lib/db";
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const id = (await params).id;
+
     const { selectedOptions } = await req.json();
 
     if (!id || !Array.isArray(selectedOptions)) {
