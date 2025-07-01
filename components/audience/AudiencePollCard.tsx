@@ -33,7 +33,7 @@ export default function AudiencePollCard({
   // Check if poll is expired
   const isExpired =
     pollData.expiresAt !== undefined && new Date() > pollData.expiresAt;
-  const isPollClosed = pollData.status === "ENDED" || isExpired;
+  const isPollClosed = pollData.status === "CLOSED" || isExpired;
 
   // Calculate time left
   useEffect(() => {
