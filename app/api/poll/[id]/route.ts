@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
-export async function GET(req: Request, context: { params: { id: string } }) {
-  const pollId = context.params.id;
-
-  const poll = await prisma.poll.findUnique({ where: { id: pollId } });
+export async function GET(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  const { id } = await params;
+  const poll = await prisma.poll.findUnique({ where: { id: id } });
   if (!poll) {
     return NextResponse.json({ error: "Poll not found" }, { status: 404 });
   }
