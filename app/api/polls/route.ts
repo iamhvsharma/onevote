@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { getUser } from "@/lib/user";
 import { prisma } from "@/lib/db";
 import { pollSchema } from "@/schemas/zodSchema";
-import { auth } from "@clerk/nextjs/server";
 
 // Zod schema for validating poll creation request
 

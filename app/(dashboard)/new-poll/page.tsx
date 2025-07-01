@@ -26,7 +26,9 @@ const defaultPollData: PollData = {
   description: "",
   options: ["", ""],
   duration: 1,
-  expiresAt: "",
+  expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+  votes: [0, 0],
+  totalVotes: 0,
 };
 
 export default function CreatePollPage() {
@@ -187,8 +189,8 @@ export default function CreatePollPage() {
                     const now = new Date();
                     const expiresAt = new Date(
                       now.getTime() + pollData.duration * 60 * 60 * 1000
-                    ).toISOString();
-                    const result = await createPoll({ ...pollData, expiresAt });
+                    );
+                    await createPoll({ ...pollData, expiresAt });
                     toast.success("Poll created successfully!");
                     router.push(`/all-polls`);
                   } catch (err: any) {

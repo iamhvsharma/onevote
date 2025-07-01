@@ -3,7 +3,7 @@
 import PollCard from "@/components/dashboard/PollCard";
 import { Search } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { Toaster, toast } from "sonner";
+import { Toaster } from "sonner";
 
 interface Poll {
   id: string;

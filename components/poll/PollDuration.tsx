@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Calendar, Timer } from "lucide-react";
+import { Clock, Timer } from "lucide-react";
 import { PollData } from "@/types";
 
 interface PollDurationProps {
