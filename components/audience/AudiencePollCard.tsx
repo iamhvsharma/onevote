@@ -92,22 +92,36 @@ export default function AudiencePollCard({
     setSelectedOptions([optionIndex]);
   };
 
+  // Handle vote submit
   const handleVoteSubmit = async () => {
     if (selectedOptions.length === 0 || isSubmitting) return;
-
     setIsSubmitting(true);
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // Mark as voted in localStorage
-    const votedPolls = JSON.parse(localStorage.getItem("votedPolls") || "[]");
-    votedPolls.push(pollData.id);
-    localStorage.setItem("votedPolls", JSON.stringify(votedPolls));
+    try {
+      const res = await fetch(`/api/polls/${pollData.id}/vote`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ selectedOptions }),
+      });
 
-    setHasVoted(true);
-    setViewState("results");
-    setIsSubmitting(false);
-    onVote(selectedOptions);
+      if (!res.ok) throw new Error("Failed to vote");
+
+      // Save to localStorage to prevent multiple votes
+      const votedPolls = JSON.parse(localStorage.getItem("votedPolls") || "[]");
+      votedPolls.push(pollData.id);
+      localStorage.setItem("votedPolls", JSON.stringify(votedPolls));
+
+      setHasVoted(true);
+      setViewState("results");
+      onVote(selectedOptions); // Inform parent component
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong while submitting your vote.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const getStatusInfo = () => {
